@@ -1,0 +1,10 @@
+body, html{
+    width: 100%;
+    height:auto;
+
+}
+
+#pianoRoll{
+    image-rendering: pixelated;
+    
+}
