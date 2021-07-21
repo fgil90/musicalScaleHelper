@@ -4,6 +4,22 @@ body, html{
 
 }
 
+
+
+label{
+    float: left;
+    padding: 5px;
+}
+
+
+form{
+    display: flex;
+    flex-direction: column;
+    width:400px;
+    margin: auto;
+    font-size: 20px;
+}
+
 #pianoRoll{
     image-rendering: pixelated;
     

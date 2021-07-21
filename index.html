@@ -11,32 +11,47 @@
   </head>
   <body>
     <form action="">
-      <label for="key-selector">Key</label
-      ><select name="key" id="key-selector"></select>
-      <label for="scale-selector">Scale</label
-      ><select name="scale" id="scale-selector"></select>
-      <label for="mode-selector">Mode</label
-      ><select name="mode" id="mode-selector"></select>
-      <label for="octave-selector">Octave</label
-      ><select name="octave" id="octave-selector">
+      <label for="key-selector">
+        Key
+        <select name="key" id="key-selector"></select>
+      </label>
+      <label for="scale-selector">
+        Scale
+        <select name="scale" id="scale-selector"></select>
+      </label>
+      <label for="mode-selector">
+        Mode
+        <select name="mode" id="mode-selector"></select>
+      </label>
+      <label for="octave-selector">
+        Octave
+        <select name="octave" id="octave-selector">
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>
           <option value="4" selected>4</option>
           <option value="5">5</option>
           <option value="6">6</option>
-      </select>
+        </select>
+      </label>
 
-      <label for="volume-slider">Volume</label
-      ><input
-        type="range"
-        name="volume-slider"
-        id="volume-slider"
-        min="0"
-        max="1"
-        step=".01"
-        value=".5"
-      />
+      <label for="volume-slider">
+        Volume
+        <input
+          type="range"
+          name="volume-slider"
+          id="volume-slider"
+          min="0"
+          max="1"
+          step=".01"
+          value=".5"
+        />
+      </label>
+
+      <label for="sustain-checkbox">
+        Sustain
+        <input type="checkbox" name="sustain" id="sustain-checkbox" />
+      </label>
     </form>
 
     <canvas id="pianoRoll"></canvas>

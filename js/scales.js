@@ -1,15 +1,28 @@
-//TODO:
 /*
-
-add reference keyboard  * doing it
-map keys to sounds
-add wheel
-Make it pretty
-
-1234567890
-qwertyuiop
-asdfghjkl;
-zxcvbnm,./
+*
+*TODO:
+*
+*Add wheel
+*Make it pretty
+*
+*
+*DONE:
+*
+*Terminate a sound when let go of key
+*Don't repeat sounds when holding down key
+*Add reference keyboard 
+*Map chromatic scale to top two rows of keyboard 
+*Map chosen scale to bottom two rows of keyboard
+*Add Sustain Mode
+*
+*BUGS:
+*
+*
+*FIXED:
+*
+*Sorted scales because it was shifting octaves incorrectly
+*Chromatic keyboard octave is looping incorrectly
+*Octave Selector not working
 
 */
 
@@ -22,6 +35,8 @@ const pentatonicScale = [0, 3, 5, 7, 10]
 const harmonicMinorScale = [0, 2, 3, 5, 7, 8, 11]
 const harmonicMajorScale = [0, 2, 4, 5, 7, 8, 11]
 const chromaticScale = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+const wholeToneScale = [0, 2, 4, 6, 8, 10]
+const octatonicScale = [0, 2, 3, 5, 6, 8, 9, 11]
 
 const whiteKeysReferenceScale = naturalScale
 // const blackKeysReferenceScale = naturalScale.map(key =>{
@@ -37,6 +52,8 @@ const scalesDict = {
     "Harmonic Minor Scale": harmonicMinorScale,
     "Harmonic Major Scale": harmonicMajorScale,
     "Chromatic": chromaticScale,
+    "Whole Tone Scale": wholeToneScale,
+    "Octatonic Scale": octatonicScale,
 }
 
 const modesDict = {
@@ -55,6 +72,7 @@ function generateNewScale(keyOffset, modeOffset, scale) {
             - scale[modeOffset % scale.length]; // rotate the key back
         newScale[i] = (currentOffset) % baseScale.length;
     }
+    newScale.sort((a,b) => a-b)
     return newScale;
 }
 
@@ -93,8 +111,8 @@ function updateModeSelector() {
     const scaleName = scaleSelector.value
     if (!(scaleName in modesDict)) {
         option = document.createElement("option")
-        option.value = "Pentatonic Scale"
-        option.textContent = "Pentatonic Scale"
+        option.value = "N/A"
+        option.textContent = "N/A"
         modeSelector.appendChild(option)
         return
     }
@@ -112,16 +130,15 @@ updateModeSelector()
 
 // PianoRoll Draw part
 
-const canvas = document.querySelector('#pianoRoll')
+const totalWhiteKeys = 22;
 
+const canvas = document.querySelector('#pianoRoll')
 const context = canvas.getContext('2d')
 const whiteKeyWidth = 50;
 const whiteKeyHeight = 200;
 const blackKeyWidth = whiteKeyWidth * 0.8;
 const blackKeyHeight = whiteKeyHeight * 0.5;
-const totalWhiteKeys = 22;
 const totalWidth = whiteKeyWidth * totalWhiteKeys;
-
 
 function drawWhiteKey(x, y = 100) {
     context.lineWidth = 2
@@ -137,7 +154,6 @@ function drawPianoRoll() {
     canvas.width = window.innerWidth;
     canvas.height = 400;
     const positionOffset = (window.innerWidth - totalWidth) / 2
-    // context.clearRect(0, 0, canvas.width, canvas.height)
     context.fillStyle = "white"
     context.fillRect(positionOffset, 100, totalWidth, whiteKeyHeight)
     for (let i = 0; i < totalWhiteKeys; i++) {
@@ -168,6 +184,7 @@ function drawHighlightedScale(keyOffset, modeOffset, scale) {
         const blackKeysReferenceIndex = i % blackKeysReferenceScale.length
         const blackKey = blackKeysReferenceScale[blackKeysReferenceIndex]
 
+        //skip E# and B# + the last black key.
         if (i % blackKeysReferenceScale.length == 2 || i % blackKeysReferenceScale.length == 6 || i == totalWhiteKeys - 1) {
             continue
         }
@@ -184,7 +201,6 @@ function drawHighlightedScale(keyOffset, modeOffset, scale) {
 
 //Audio part
 
-
 const chromaticBlackKeys = ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9", "Digit0"]
 const chromaticWhiteKeys = ["KeyQ", "KeyW", "KeyE", "KeyR", "KeyT", "KeyY", "KeyU", "KeyI", "KeyO", "KeyP"]
 const scaleKeys1 = ["KeyA", "KeyS", "KeyD", "KeyF", "KeyG", "KeyH", "KeyJ", "KeyK", "KeyL", "Semicolon"]
@@ -195,46 +211,52 @@ let buttonToSoundDict = {}
 
 const keyboardWidth = chromaticBlackKeys.length
 
+function getNoteFromScale(index, scale, selectedOctave) {
+    const baseScaleIndex = scale[index % scale.length]
+    const currentKey = baseScale[baseScaleIndex]
+    const currentOctave = selectedOctave + Math.floor(index / scale.length)
+    const soundToPlay = currentKey + currentOctave.toString()
+    return soundToPlay
+}
+
 function mapKeysToSounds(keyOffset, modeOffset, scale) {
 
     buttonToSoundDict = {}
-    
-    //Chromatic Keyboard Part (first 2 rows)
-    const selectedOctave = parseFloat(octaveSelector.value)
+    const newScale = generateNewScale(keyOffset, modeOffset, scale)
+
+
+    const selectedOctave = parseInt(octaveSelector.value)
+
     let naturalScaleModeOffset
 
     for (let mode = 0; mode < whiteKeysReferenceScale.length; mode++) {
         if (whiteKeysReferenceScale[mode] >= keyOffset) {
             naturalScaleModeOffset = mode
             break
-        }        
+        }
     }
-    //loop for blackkeys
 
     for (let i = 0; i < keyboardWidth; i++) {
 
-        const blackKeysReferenceIndex = (i+6) + naturalScaleModeOffset
-        
+        const whiteKeysReferenceIndex = naturalScaleModeOffset + i
+        const blackKeysReferenceIndex = 6 + whiteKeysReferenceIndex
+        const scaleReferenceIndex = i + keyOffset
+
+        //Scale Keyboard Part (last 2 rows)
+
+        buttonToSoundDict[scaleKeys1[i]] = getNoteFromScale(scaleReferenceIndex, newScale, selectedOctave)
+        buttonToSoundDict[scaleKeys2[i]] = getNoteFromScale(scaleReferenceIndex + 5, newScale, selectedOctave)
+
+        //Chromatic Keyboard Part (first 2 rows)
+
+        buttonToSoundDict[chromaticWhiteKeys[i]] = getNoteFromScale(whiteKeysReferenceIndex, whiteKeysReferenceScale, selectedOctave)
+        //skip E# and B#
         if (blackKeysReferenceIndex % blackKeysReferenceScale.length == 2 || blackKeysReferenceIndex % blackKeysReferenceScale.length == 6) {
             continue
         }
-        let currentKey = baseScale[blackKeysReferenceScale[(blackKeysReferenceIndex) % blackKeysReferenceScale.length]]
-        let soundToPlay = currentKey + (selectedOctave + Math.floor(blackKeysReferenceIndex / blackKeysReferenceScale.length)-1).toString()
-        // console.log(soundToPlay);
-        buttonToSoundDict[chromaticBlackKeys[i]] = soundToPlay
-    }
-
-    //loop for whitekeys
-    for (let i = 0; i < keyboardWidth; i++) {
-        let currentKey = baseScale[whiteKeysReferenceScale[(naturalScaleModeOffset + i) % whiteKeysReferenceScale.length]]
-        let soundToPlay = currentKey + (selectedOctave + Math.floor(i / whiteKeysReferenceScale.length)).toString()
-        // console.log(soundToPlay);
-        buttonToSoundDict[chromaticWhiteKeys[i]] = soundToPlay
+        buttonToSoundDict[chromaticBlackKeys[i]] = getNoteFromScale(blackKeysReferenceIndex, blackKeysReferenceScale, selectedOctave-1)
 
     }
-
-    //Scale Keyboard Part (last 2 rows)
-
 }
 
 const instruments = {};
@@ -251,25 +273,47 @@ Soundfont.instrument(audioContext, 'acoustic_grand_piano').then(function (instru
 });
 
 function volumeHandler() {
-    console.log(this.value);
+    // console.log(this.value);
     gainNode.gain.value = 6.0 * this.value
 }
 
-volumeSlider = document.querySelector("#volume-slider");
-octaveSelector = document.querySelector("#octave-selector");
+const volumeSlider = document.querySelector("#volume-slider");
+const octaveSelector = document.querySelector("#octave-selector");
+const sustainCheckbox = document.querySelector("#sustain-checkbox")
+
+const currentlyPlaying = {}
 
 document.addEventListener('keydown', (event) => {
-    if (!(event.code in buttonToSoundDict)){
+    if (!instruments['acoustic_grand_piano']) {
         return
     }
-    instruments['acoustic_grand_piano'].play(buttonToSoundDict[event.code]);
+    if (!(event.code in buttonToSoundDict)) {
+        return
+    }
+    if (event.code in currentlyPlaying) {
+        if (currentlyPlaying[event.code].isPressed) {
+            return
+        }
+
+        //deleting for sustain mode
+        currentlyPlaying[event.code].stop()
+        delete currentlyPlaying[event.code]
+    }
+    currentlyPlaying[event.code] = instruments['acoustic_grand_piano'].play(buttonToSoundDict[event.code]);
+    currentlyPlaying[event.code].isPressed = true
 });
 
-// document.addEventListener('keyup', (event) => {
-//     sound.stop();
-//     sound = null;
-// });
-
+document.addEventListener('keyup', (event) => {
+    if (!(event.code in currentlyPlaying)) {
+        return
+    }
+    if (sustainCheckbox.checked) {
+        currentlyPlaying[event.code].isPressed = false
+        return
+    }
+    currentlyPlaying[event.code].stop()
+    delete currentlyPlaying[event.code]
+});
 
 //EventHandlers
 
@@ -283,6 +327,7 @@ scaleSelector.addEventListener("change", updateModeSelector)
 keySelector.addEventListener("change", handleAnyKeyChange)
 modeSelector.addEventListener("change", handleAnyKeyChange)
 scaleSelector.addEventListener("change", handleAnyKeyChange)
+octaveSelector.addEventListener("change", handleAnyKeyChange)
 
 volumeSlider.addEventListener('change', volumeHandler)
 window.addEventListener("resize", handleAnyKeyChange)
@@ -290,4 +335,4 @@ window.addEventListener("resize", handleAnyKeyChange)
 //initialized data
 
 drawHighlightedScale(0, 0, naturalScale)
-mapKeysToSounds(0,0,naturalScale)
+mapKeysToSounds(0, 0, naturalScale)
