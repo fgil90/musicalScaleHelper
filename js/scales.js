@@ -18,9 +18,11 @@
 *BUGS:
 *
 *
+*
 *FIXED:
 *
-*Sorted scales because it was shifting octaves incorrectly
+*Scale portion of the keyboard not playing the intended first tone.
+*Fix shifting octaves incorrectly
 *Chromatic keyboard octave is looping incorrectly
 *Octave Selector not working
 
@@ -72,7 +74,7 @@ function generateNewScale(keyOffset, modeOffset, scale) {
             - scale[modeOffset % scale.length]; // rotate the key back
         newScale[i] = (currentOffset) % baseScale.length;
     }
-    newScale.sort((a,b) => a-b)
+    // newScale.sort((a,b) => a-b)
     return newScale;
 }
 
@@ -214,16 +216,18 @@ const keyboardWidth = chromaticBlackKeys.length
 function getNoteFromScale(index, scale, selectedOctave) {
     const baseScaleIndex = scale[index % scale.length]
     const currentKey = baseScale[baseScaleIndex]
-    const currentOctave = selectedOctave + Math.floor(index / scale.length)
+    let currentOctave = selectedOctave + Math.floor(index / scale.length)
+    if (baseScaleIndex < scale[0]){
+        currentOctave++
+    }
     const soundToPlay = currentKey + currentOctave.toString()
     return soundToPlay
 }
 
 function mapKeysToSounds(keyOffset, modeOffset, scale) {
-
     buttonToSoundDict = {}
     const newScale = generateNewScale(keyOffset, modeOffset, scale)
-
+    console.log(newScale);
 
     const selectedOctave = parseInt(octaveSelector.value)
 
@@ -240,12 +244,13 @@ function mapKeysToSounds(keyOffset, modeOffset, scale) {
 
         const whiteKeysReferenceIndex = naturalScaleModeOffset + i
         const blackKeysReferenceIndex = 6 + whiteKeysReferenceIndex
-        const scaleReferenceIndex = i + keyOffset
+        const scaleReferenceIndex = i
+        const secondRowOffset = 5
 
         //Scale Keyboard Part (last 2 rows)
 
         buttonToSoundDict[scaleKeys1[i]] = getNoteFromScale(scaleReferenceIndex, newScale, selectedOctave)
-        buttonToSoundDict[scaleKeys2[i]] = getNoteFromScale(scaleReferenceIndex + 5, newScale, selectedOctave)
+        buttonToSoundDict[scaleKeys2[i]] = getNoteFromScale(scaleReferenceIndex + secondRowOffset, newScale, selectedOctave)
 
         //Chromatic Keyboard Part (first 2 rows)
 
