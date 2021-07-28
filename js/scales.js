@@ -36,6 +36,8 @@ const naturalScale = [0, 2, 4, 5, 7, 9, 11]
 const pentatonicScale = [0, 3, 5, 7, 10]
 const harmonicMinorScale = [0, 2, 3, 5, 7, 8, 11]
 const harmonicMajorScale = [0, 2, 4, 5, 7, 8, 11]
+const melodicMinorScale = [0, 2, 3, 5, 7, 9, 11]
+const melodicMajorScale = [0, 2, 4, 5, 7, 8, 10]
 const chromaticScale = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 const wholeToneScale = [0, 2, 4, 6, 8, 10]
 const octatonicScale = [0, 2, 3, 5, 6, 8, 9, 11]
@@ -53,15 +55,19 @@ const scalesDict = {
     "Pentatonic Scale": pentatonicScale,
     "Harmonic Minor Scale": harmonicMinorScale,
     "Harmonic Major Scale": harmonicMajorScale,
+    "Melodic Minor Scale": melodicMinorScale,
+    "Melodic Major Scale": melodicMajorScale,
     "Chromatic": chromaticScale,
     "Whole Tone Scale": wholeToneScale,
     "Octatonic Scale": octatonicScale,
 }
 
 const modesDict = {
-    "Natural Scale": ["I", "II", "III", "IV", "V", "VI", "VII"],
-    "Harmonic Minor Scale": ["I", "II", "III", "IV", "V", "VI", "VII"],
-    "Harmonic Major Scale": ["I", "II", "III", "IV", "V", "VI", "VII"],
+    "Natural Scale": ["I (Ionian)", "II (Dorian)", "III (Phrygian)", "IV (Lydian)", "V (Mixolydian)", "VI (Aeolian)", "VII (Locrian)"],
+    "Harmonic Minor Scale": ["I (Aeolian 7) ", "II (Locrian 6)", "III (Ionian #5)", "IV (Dorian #4)", "V (Phrygian Dominant)", "VI (Lydian #2)", "VII (Super Locrian bb7)"],
+    "Harmonic Major Scale": ["I (Ionian b6)", "II (Dorian b5)", "III (Phrygian b4)", "IV (Lydian b3)", "V (Mixolydian b2", "VI (Lydian Augmented #2)", "VII (Locrian bb7)"],
+    "Melodic Minor Scale": ["I (Ionian b3)", "II (Dorian b9)", "III (Lydian Augmented)", "IV (Lydian Dominant)", "V (Mixolydian b6)", "VI (Locrian #2)", "VII (Super Locrian)"],
+    "Melodic Major Scale": ["I (Aeolian #3)", "II", "III", "IV", "V", "VI", "VII"],
 }
 
 function generateNewScale(keyOffset, modeOffset, scale) {
@@ -227,7 +233,6 @@ function getNoteFromScale(index, scale, selectedOctave) {
 function mapKeysToSounds(keyOffset, modeOffset, scale) {
     buttonToSoundDict = {}
     const newScale = generateNewScale(keyOffset, modeOffset, scale)
-    console.log(newScale);
 
     const selectedOctave = parseInt(octaveSelector.value)
 
