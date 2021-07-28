@@ -185,7 +185,7 @@ function drawHighlightedScale(keyOffset, modeOffset, scale) {
         if (newScale.includes(whiteKey)) {
             const whiteKeyTextPositionX = whiteKeyWidth * i + 0.5 * whiteKeyWidth + positionOffset
             pianoRollContext.textAlign = "center"
-            pianoRollContext.font = "bold 26px Arial"
+            pianoRollContext.font = "bold 26px Rosario"
             pianoRollContext.fillStyle = "#000"
             pianoRollContext.fillText(baseScale[whiteKey], whiteKeyTextPositionX, whiteKeyHeight + (pianoRollCanvasHeight - whiteKeyHeight) / 2 - 20)
         }
@@ -201,7 +201,7 @@ function drawHighlightedScale(keyOffset, modeOffset, scale) {
         if (newScale.includes(blackKey)) {
             const blackKeyTextPositionX = whiteKeyWidth * (i + 1) + positionOffset
             pianoRollContext.textAlign = "center"
-            pianoRollContext.font = "bold 26px Arial"
+            pianoRollContext.font = "26px Rosario"
             pianoRollContext.fillStyle = "#FFF"
             pianoRollContext.fillText(baseScale[blackKey], blackKeyTextPositionX, blackKeyHeight + (pianoRollCanvasHeight - whiteKeyHeight) / 2 - 20)
         }

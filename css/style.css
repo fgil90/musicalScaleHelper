@@ -5,6 +5,7 @@ body, html{
 body{
     background-color: #2e2e2e;
     color: #FFF;
+    font-family: 'Basic';
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -12,6 +13,7 @@ body{
 }
 
 h1{
+    font-family: 'Rosario';
     font-size: 2rem;
     font-weight: bolder;
     padding:20px;
@@ -50,7 +52,7 @@ label *{
 }
 
 .computer-keyboard-key{
-    transition-duration:1s;
+    transition-duration:.7s;
     height:50px;
     width:50px;
     text-align: center;
@@ -58,6 +60,7 @@ label *{
     vertical-align: middle;
     border-radius: 50%;
     color:black;
+    font-size: 1.5rem;
     font-weight: bolder;
     background-color: white;
     box-shadow: lightgray;
@@ -66,7 +69,7 @@ label *{
 
 .keyIsPlaying{
     background-color: greenyellow;
-    transition-duration:.1s;
+    transition-duration:.05s;
 }
 
 form{
