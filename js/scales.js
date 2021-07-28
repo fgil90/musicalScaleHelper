@@ -142,28 +142,29 @@ const totalWhiteKeys = 22;
 
 const pianoRollCanvas = document.querySelector('#pianoRoll')
 const pianoRollContext = pianoRollCanvas.getContext('2d')
+pianoRollCanvasHeight = 300;
 const whiteKeyWidth = 50;
 const whiteKeyHeight = 200;
 const blackKeyWidth = whiteKeyWidth * 0.8;
 const blackKeyHeight = whiteKeyHeight * 0.5;
 const totalWidth = whiteKeyWidth * totalWhiteKeys;
 
-function drawWhiteKey(x, y = whiteKeyHeight / 2) {
+function drawWhiteKey(x, y = (pianoRollCanvasHeight - whiteKeyHeight) / 2) {
     pianoRollContext.lineWidth = 2
     pianoRollContext.strokeRect(x, y, whiteKeyWidth, whiteKeyHeight)
 }
 
-function drawBlackKey(x, y = whiteKeyHeight / 2) {
+function drawBlackKey(x, y = (pianoRollCanvasHeight - whiteKeyHeight) / 2) {
     pianoRollContext.fillStyle = "black"
     pianoRollContext.fillRect(x + (whiteKeyWidth + (whiteKeyWidth - blackKeyWidth)) / 2, y, blackKeyWidth, blackKeyHeight)
 }
 
 function drawPianoRoll() {
     pianoRollCanvas.width = window.innerWidth;
-    pianoRollCanvas.height = 400;
+    pianoRollCanvas.height = pianoRollCanvasHeight;
     const positionOffset = (window.innerWidth - totalWidth) / 2
     pianoRollContext.fillStyle = "white"
-    pianoRollContext.fillRect(positionOffset, whiteKeyHeight / 2, totalWidth, whiteKeyHeight)
+    pianoRollContext.fillRect(positionOffset, (pianoRollCanvasHeight - whiteKeyHeight) / 2, totalWidth, whiteKeyHeight)
     for (let i = 0; i < totalWhiteKeys; i++) {
         drawWhiteKey(whiteKeyWidth * i + positionOffset)
         if (i % blackKeysReferenceScale.length == 2 || i % blackKeysReferenceScale.length == 6 || i == totalWhiteKeys - 1) {
@@ -186,7 +187,7 @@ function drawHighlightedScale(keyOffset, modeOffset, scale) {
             pianoRollContext.textAlign = "center"
             pianoRollContext.font = "bold 26px Arial"
             pianoRollContext.fillStyle = "#000"
-            pianoRollContext.fillText(baseScale[whiteKey], whiteKeyTextPositionX, whiteKeyHeight + 80)
+            pianoRollContext.fillText(baseScale[whiteKey], whiteKeyTextPositionX, whiteKeyHeight + (pianoRollCanvasHeight - whiteKeyHeight) / 2 - 20)
         }
 
         const blackKeysReferenceIndex = i % blackKeysReferenceScale.length
@@ -202,7 +203,7 @@ function drawHighlightedScale(keyOffset, modeOffset, scale) {
             pianoRollContext.textAlign = "center"
             pianoRollContext.font = "bold 26px Arial"
             pianoRollContext.fillStyle = "#FFF"
-            pianoRollContext.fillText(baseScale[blackKey], blackKeyTextPositionX, blackKeyHeight + 80)
+            pianoRollContext.fillText(baseScale[blackKey], blackKeyTextPositionX, blackKeyHeight + (pianoRollCanvasHeight - whiteKeyHeight) / 2 - 20)
         }
     }
 }
