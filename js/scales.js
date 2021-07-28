@@ -3,11 +3,11 @@
 *TODO:
 *
 *Add wheel
-*Make it pretty
-*
+*Show which keys are which tone
 *
 *DONE:
 *
+*Make it pretty
 *Terminate a sound when let go of key
 *Don't repeat sounds when holding down key
 *Add reference keyboard 
@@ -140,30 +140,30 @@ updateModeSelector()
 
 const totalWhiteKeys = 22;
 
-const canvas = document.querySelector('#pianoRoll')
-const context = canvas.getContext('2d')
+const pianoRollCanvas = document.querySelector('#pianoRoll')
+const pianoRollContext = pianoRollCanvas.getContext('2d')
 const whiteKeyWidth = 50;
 const whiteKeyHeight = 200;
 const blackKeyWidth = whiteKeyWidth * 0.8;
 const blackKeyHeight = whiteKeyHeight * 0.5;
 const totalWidth = whiteKeyWidth * totalWhiteKeys;
 
-function drawWhiteKey(x, y = 100) {
-    context.lineWidth = 2
-    context.strokeRect(x, y, whiteKeyWidth, whiteKeyHeight)
+function drawWhiteKey(x, y = whiteKeyHeight / 2) {
+    pianoRollContext.lineWidth = 2
+    pianoRollContext.strokeRect(x, y, whiteKeyWidth, whiteKeyHeight)
 }
 
-function drawBlackKey(x, y = 100) {
-    context.fillStyle = "black"
-    context.fillRect(x + (whiteKeyWidth + (whiteKeyWidth - blackKeyWidth)) / 2, y, blackKeyWidth, blackKeyHeight)
+function drawBlackKey(x, y = whiteKeyHeight / 2) {
+    pianoRollContext.fillStyle = "black"
+    pianoRollContext.fillRect(x + (whiteKeyWidth + (whiteKeyWidth - blackKeyWidth)) / 2, y, blackKeyWidth, blackKeyHeight)
 }
 
 function drawPianoRoll() {
-    canvas.width = window.innerWidth;
-    canvas.height = 400;
+    pianoRollCanvas.width = window.innerWidth;
+    pianoRollCanvas.height = 400;
     const positionOffset = (window.innerWidth - totalWidth) / 2
-    context.fillStyle = "white"
-    context.fillRect(positionOffset, 100, totalWidth, whiteKeyHeight)
+    pianoRollContext.fillStyle = "white"
+    pianoRollContext.fillRect(positionOffset, whiteKeyHeight / 2, totalWidth, whiteKeyHeight)
     for (let i = 0; i < totalWhiteKeys; i++) {
         drawWhiteKey(whiteKeyWidth * i + positionOffset)
         if (i % blackKeysReferenceScale.length == 2 || i % blackKeysReferenceScale.length == 6 || i == totalWhiteKeys - 1) {
@@ -183,10 +183,10 @@ function drawHighlightedScale(keyOffset, modeOffset, scale) {
 
         if (newScale.includes(whiteKey)) {
             const whiteKeyTextPositionX = whiteKeyWidth * i + 0.5 * whiteKeyWidth + positionOffset
-            context.textAlign = "center"
-            context.font = "bold 26px Arial"
-            context.fillStyle = "#000"
-            context.fillText(baseScale[whiteKey], whiteKeyTextPositionX, whiteKeyHeight + 80)
+            pianoRollContext.textAlign = "center"
+            pianoRollContext.font = "bold 26px Arial"
+            pianoRollContext.fillStyle = "#000"
+            pianoRollContext.fillText(baseScale[whiteKey], whiteKeyTextPositionX, whiteKeyHeight + 80)
         }
 
         const blackKeysReferenceIndex = i % blackKeysReferenceScale.length
@@ -199,13 +199,15 @@ function drawHighlightedScale(keyOffset, modeOffset, scale) {
 
         if (newScale.includes(blackKey)) {
             const blackKeyTextPositionX = whiteKeyWidth * (i + 1) + positionOffset
-            context.textAlign = "center"
-            context.font = "bold 26px Arial"
-            context.fillStyle = "#FFF"
-            context.fillText(baseScale[blackKey], blackKeyTextPositionX, blackKeyHeight + 60)
+            pianoRollContext.textAlign = "center"
+            pianoRollContext.font = "bold 26px Arial"
+            pianoRollContext.fillStyle = "#FFF"
+            pianoRollContext.fillText(baseScale[blackKey], blackKeyTextPositionX, blackKeyHeight + 80)
         }
     }
 }
+
+
 
 //Audio part
 
@@ -223,7 +225,7 @@ function getNoteFromScale(index, scale, selectedOctave) {
     const baseScaleIndex = scale[index % scale.length]
     const currentKey = baseScale[baseScaleIndex]
     let currentOctave = selectedOctave + Math.floor(index / scale.length)
-    if (baseScaleIndex < scale[0]){
+    if (baseScaleIndex < scale[0]) {
         currentOctave++
     }
     const soundToPlay = currentKey + currentOctave.toString()
@@ -264,7 +266,7 @@ function mapKeysToSounds(keyOffset, modeOffset, scale) {
         if (blackKeysReferenceIndex % blackKeysReferenceScale.length == 2 || blackKeysReferenceIndex % blackKeysReferenceScale.length == 6) {
             continue
         }
-        buttonToSoundDict[chromaticBlackKeys[i]] = getNoteFromScale(blackKeysReferenceIndex, blackKeysReferenceScale, selectedOctave-1)
+        buttonToSoundDict[chromaticBlackKeys[i]] = getNoteFromScale(blackKeysReferenceIndex, blackKeysReferenceScale, selectedOctave - 1)
 
     }
 }
@@ -293,6 +295,8 @@ const sustainCheckbox = document.querySelector("#sustain-checkbox")
 
 const currentlyPlaying = {}
 
+//HandleKeyPresses
+
 document.addEventListener('keydown', (event) => {
     if (!instruments['acoustic_grand_piano']) {
         return
@@ -311,19 +315,63 @@ document.addEventListener('keydown', (event) => {
     }
     currentlyPlaying[event.code] = instruments['acoustic_grand_piano'].play(buttonToSoundDict[event.code]);
     currentlyPlaying[event.code].isPressed = true
+    const currentKeyDown = document.querySelector("." + event.code)
+    currentKeyDown.classList.add("keyIsPlaying")
 });
 
 document.addEventListener('keyup', (event) => {
+    const currentKeyDown = document.querySelector("." + event.code)
     if (!(event.code in currentlyPlaying)) {
         return
     }
     if (sustainCheckbox.checked) {
         currentlyPlaying[event.code].isPressed = false
+        currentKeyDown.classList.remove("keyIsPlaying")
         return
     }
     currentlyPlaying[event.code].stop()
+    currentKeyDown.classList.remove("keyIsPlaying")
     delete currentlyPlaying[event.code]
 });
+
+//Draw computer keyboard part
+
+const computerKeyboardContainer = document.querySelector('.computer-keyboard-display-container')
+const computerKeyboardRowContainer = document.querySelectorAll('.computer-keyboard-row')
+
+const computerKeyboardRow1 = chromaticBlackKeys
+const computerKeyboardRow2 = chromaticWhiteKeys
+const computerKeyboardRow3 = scaleKeys1
+const computerKeyboardRow4 = scaleKeys2
+
+
+function populateComputerKeyboardDivs(keyList, attachment) {
+    keyList.forEach(element => {
+        const computerKeyboardKey = document.createElement("div")
+        computerKeyboardKey.classList.add("computer-keyboard-key")
+        computerKeyboardKey.classList.add(element)
+        computerKeyboardKey.innerText = element.slice(-1)
+        if (element === "Comma") {
+            computerKeyboardKey.innerText = ","
+        }
+        if (element === "Period") {
+            computerKeyboardKey.innerText = "."
+        }
+        if (element === "Slash") {
+            computerKeyboardKey.innerText = "/"
+        }
+        if (element === "Semicolon") {
+            computerKeyboardKey.innerText = ";"
+        }
+        attachment.appendChild(computerKeyboardKey)
+    });
+}
+
+populateComputerKeyboardDivs(computerKeyboardRow1, computerKeyboardRowContainer[0])
+populateComputerKeyboardDivs(computerKeyboardRow2, computerKeyboardRowContainer[1])
+populateComputerKeyboardDivs(computerKeyboardRow3, computerKeyboardRowContainer[2])
+populateComputerKeyboardDivs(computerKeyboardRow4, computerKeyboardRowContainer[3])
+
 
 //EventHandlers
 
